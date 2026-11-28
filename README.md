@@ -17,6 +17,19 @@ To install, run `/plugin install {plugin-name}@claude-plugins-official`
 
 or browse for the plugin in `/plugin > Discover`
 
+
+## Before installing a plugin
+
+Treat plugins as executable extensions, not just documentation. Depending on the plugin, commands, lifecycle hooks, helper scripts, or configured MCP servers may run processes, read or write files, access the network, or use credentials available to the host session. Marketplace inclusion is not a guarantee that a plugin is safe for every environment.
+
+1. Read the marketplace entry and the plugin's README, license, homepage, and source repository.
+2. Inspect `.claude-plugin/plugin.json`, `.mcp.json`, `hooks/hooks.json`, `commands/`, `agents/`, `skills/`, and any referenced scripts that are present. Check shell commands, Python/Node helpers, network destinations, file writes, environment variables, and credential handling.
+3. For remote sources, verify the `source.url`, `ref`, and `sha` when provided. Re-review the source before upgrades because a branch or tag can change.
+4. Test unfamiliar plugins in a disposable project or isolated environment without production credentials or sensitive files. Grant only the permissions needed for the task.
+5. Review hook behavior and tool output after installation; remove the plugin if it performs unexpected actions.
+
+For example, this repository includes hook configurations that launch shell/Python helpers, including `plugins/ralph-loop/hooks/hooks.json` and `plugins/security-guidance/hooks/hooks.json`. Inspect the referenced code before enabling such hooks.
+
 ## Contributing
 
 ### Internal Plugins
@@ -29,16 +42,19 @@ Third-party partners can submit plugins for inclusion in the marketplace. Extern
 
 ## Plugin Structure
 
-Each plugin follows a standard structure:
+Manifest-based plugins commonly include `.claude-plugin/plugin.json`. Marketplace skill bundles may instead declare skills directly in the marketplace entry when configured for non-strict loading. Optional components vary by plugin:
 
 ```
 plugin-name/
 ├── .claude-plugin/
-│   └── plugin.json      # Plugin metadata (required)
+│   └── plugin.json      # Manifest for manifest-based plugins
 ├── .mcp.json            # MCP server configuration (optional)
+├── hooks/
+│   └── hooks.json       # Lifecycle hook declarations (optional)
 ├── commands/            # Slash commands (optional)
 ├── agents/              # Agent definitions (optional)
 ├── skills/              # Skill definitions (optional)
+├── scripts/             # Helper code referenced by plugin components
 └── README.md            # Documentation
 ```
 
